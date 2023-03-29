@@ -11,8 +11,18 @@ const sauceSchema = mongoose.Schema({
     heat:Number,//nombre entre 1 et 10 decrivant la sauce
     likes:Number,//nombre d'utilisateur qui aiment la sauce
     dislikes:Number,//nombre d'utilisateur qui desaprouve
-    usersLiked:[String],//TABLEAU des identifiant approuvant
-    usersDisliked:[String]//TABLEAU des identifiant désapprouvant
+    //TABLEAU des identifiant approuvant
+    usersLiked:{
+        type: [String],
+        required:true,
+        default:[],
+    },
+    //TABLEAU des identifiant désapprouvant
+    usersDisliked:{
+        type: [String],
+        required:true,
+        default:[],
+    }
     
 });
 
