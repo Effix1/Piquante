@@ -10,7 +10,6 @@ exports.createSauce = (req,res,next) => {
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
-  console.log(sauceObject)
   sauce.save()
   .then(()=>{ res.status(201).json({message:'Sauce enregistrée'})})
   .catch(error=> { res.status(400).json({error})})
@@ -74,7 +73,8 @@ exports.likeOrNot = async (req, res, next) => {
     const sauce = await Sauce.findOne({ _id: req.params.id });
     const userId = req.body.userId;
     const like = req.body.like;
-
+    
+    
     if (like === 1 && !sauce.usersLiked.includes(userId)) {
       await Sauce.updateOne(
         { _id: req.params.id },
@@ -82,54 +82,49 @@ exports.likeOrNot = async (req, res, next) => {
           $push: { usersLiked: userId },
           $inc: { likes: +1 },
         }
-      );
-      return res.status(200).json({ message: "Sauce likée !" });
-    }
-
-    if (like === -1 && !sauce.usersDisliked.includes(userId)) {
-      await Sauce.updateOne(
-        { _id: req.params.id },
-        {
-          $push: { usersDisliked: userId },
-          $inc: { dislikes: +1 },
+        );
+        return res.status(200).json({ message: "Sauce likée !" });
+      }
+      
+      if (like === -1 && !sauce.usersDisliked.includes(userId)) {
+        await Sauce.updateOne(
+          { _id: req.params.id },
+          {
+            $push: { usersDisliked: userId },
+            $inc: { dislikes: +1 },
+          }
+          );
+          return res.status(200).json({ message: "Sauce dislikée !" });
         }
-      );
-      return res.status(200).json({ message: "Sauce dislikée !" });
-    }
-
-    if (like === 0) {
-      if (sauce.usersLiked.includes(userId)) {
-        await Sauce.updateOne(
-          { _id: req.params.id },
-          {
-            $pull: { usersLiked: userId },
-            $inc: { likes: -1 },
+        
+        if (like === 0) {
+          if (sauce.usersLiked.includes(userId)) {
+            await Sauce.updateOne(
+              { _id: req.params.id },
+              {
+                $pull: { usersLiked: userId },
+                $inc: { likes: -1 },
+              }
+              );
+              return res.status(200).json({ message: "Like annulé." });
+            }
+            
+            if (sauce.usersDisliked.includes(userId)) {
+              await Sauce.updateOne(
+                { _id: req.params.id },
+                {
+                  $pull: { usersDisliked: userId },
+                  $inc: { dislikes: -1 },
+                }
+                );
+                return res.status(200).json({ message: "Dislike annulé." });
+              }
+            }
+            
+            return res.status(401).json({ message: "Action non autorisée." });
+          } 
+          catch (error) {
+            return res.status(500).json({ error });
           }
-        );
-        return res.status(200).json({ message: "Like annulé." });
-      }
-
-      if (sauce.usersDisliked.includes(userId)) {
-        await Sauce.updateOne(
-          { _id: req.params.id },
-          {
-            $pull: { usersDisliked: userId },
-            $inc: { dislikes: -1 },
-          }
-        );
-        return res.status(200).json({ message: "Dislike annulé." });
-      }
-    }
-
-    return res.status(401).json({ message: "Action non autorisée." });
-  } catch (error) {
-    return res.status(500).json({ error });
-  }
-};
-
-        
-        
-        
-        
-        
+        };
         

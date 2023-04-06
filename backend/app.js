@@ -23,8 +23,6 @@ app.use((req,res,next)=>{
 
 //************************************************tableau de sauces************************************
 
-/*API  => ROUTE =>CONTROLLER => MODEL  */
-
 app.use(bodyParser.json())
 
 app.use('/api/auth', userRoutes)
